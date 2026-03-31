@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>5 Норм с Фредди — Администратор против Фредди</title>
+    <style>
+        * {
+            user-select: none;
+            touch-action: manipulation;
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(145deg, #0a0a1a 0%, #1a1a2e 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Courier New', 'VT323', monospace;
+            padding: 16px;
+        }
+
+        .game-container {
+            max-width: 550px;
+            width: 100%;
+            background: #0f0f1a;
+            border-radius: 32px;
+            padding: 20px;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+            border: 1px solid #ff914d55;
+        }
+
+        .main-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            padding: 20px 10px;
+        }
+
+        .menu-btn {
+            background: #ff914d;
+            border: none;
+            padding: 18px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            font-family: monospace;
+            color: white;
+            text-shadow: 2px 2px 0 #a14500;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: 0.05s linear;
+            box-shadow: 0 5px 0 #a14500;
+            text-align: center;
+        }
+
+        .menu-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #a14500; }
+        .menu-btn.secondary { background: #3a3a6e; box-shadow: 0 5px 0 #1f1f3a; text-shadow: none; }
+        .menu-btn.danger { background: #8b0000; box-shadow: 0 5px 0 #4a0000; }
+
+        .about-box {
+            background: #1e1e2e;
+            border: 2px solid #ff6666;
+            border-radius: 24px;
+            padding: 20px;
+            color: #ffaaaa;
+            font-size: 0.9rem;
+            margin-top: 20px;
+        }
+
+        .game-area { display: none; }
+
+        .complaint-window {
+            background: linear-gradient(135deg, #2c2c3e, #1f1f2e);
+            border: 3px solid #ffb347;
+            border-radius: 20px;
+            padding: 30px 20px;
+            text-align: center;
+            color: #ffde7a;
+            text-shadow: 2px 2px 0 #5a3e1a;
+            font-weight: bold;
+            font-size: 1.1rem;
+            min-height: 130px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.5), 0 5px 10px rgba(0,0,0,0.3);
+        }
+
+        .answer-btn {
+            width: 100%;
+            background: #ff914d;
+            border: none;
+            padding: 18px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            font-family: monospace;
+            color: white;
+            border-radius: 60px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 0 #a14500;
+        }
+        .answer-btn:active { transform: translateY(2px); }
+
+        .templates {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .template-btn {
+            background: #3a3a55;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #eee;
+            cursor: pointer;
+            flex: 1;
+            min-width: 90px;
+        }
+        .info {
+            display: flex;
+            justify-content: space-between;
+            background: #000000aa;
+            padding: 12px;
+            border-radius: 50px;
+            backdrop-filter: blur(4px);
+            color: #ffd966;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .timer {
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-align: center;
+            background: #00000088;
+            border-radius: 50px;
+            padding: 8px;
+            margin-top: 10px;
+            font-family: monospace;
+        }
+        .message-box { text-align: center; margin-top: 15px; font-size: 0.9rem; color: #ffaa77; }
+        .restart-btn { background: #6c3483; box-shadow: 0 5px 0 #4a235a; margin-top: 10px; }
+        button { touch-action: manipulation; }
+    </style>
+</head>
+<body>
+<div class="game-container" id="gameContainer">
+    <div id="mainMenu" class="main-menu">
+        <button class="menu-btn" id="newGameBtn">🆕 НАЧАТЬ НОВУЮ ИГРУ</button>
+        <button class="menu-btn secondary" id="continueBtn">⏩ ПРОДОЛЖИТЬ</button>
+        <button class="menu-btn secondary" id="aboutBtn">📖 О ИГРЕ</button>
+        <button class="menu-btn danger" id="exitBtn">🚪 ВЫЙТИ</button>
+        <div id="aboutText" class="about-box" style="display: none;">
+            <h3>🔴 5 НОРМ С ФРЕДДИ 🔴</h3>
+            <p><strong>Вы — администратор.</strong> Отвечайте на жалобы игроков.<br>
+            🐻 <strong style="color:#ff8888">Фредди</strong> может появиться с шансом от 5% до 75% (чем выше норма, тем чаще).<br>
+            💀 При жалобе Фредди — есть риск, что ваш ответ не устроит его, и он напишет <strong style="color:red">ЖБАН на форум</strong> → игра начнётся заново.<br>
+            ⏱ Каждая норма требует обработать определённое количество жалоб за время.<br>
+            🏆 Цель: пройти <strong>5 норм</strong> и не получить бан.<br>
+            💾 Прогресс нормы сохраняется автоматически. Кнопка «Продолжить» начнёт норму с начала (но та же норма).</p>
+        </div>
+    </div>
+
+    <div id="gameArea" class="game-area">
+        <div class="game-bg">
+            <div class="complaint-window" id="complaintText">Нажми "Ответить", чтобы начать</div>
+            <button class="answer-btn" id="mainAnswerBtn">📝 ОТВЕТИТЬ НА ЖАЛОБУ</button>
+            <div class="templates" id="templatesPanel" style="display: none;">
+                <button class="template-btn" data-reply="work">🔧 Работаю</button>
+                <button class="template-btn" data-reply="offtopic">🚫 Не по теме</button>
+                <button class="template-btn" data-reply="forum">📢 На форум</button>
+            </div>
+            <div class="info">
+                <span>⭐ НОРМА: <span id="normaCount">1</span> / 5</span>
+                <span>⚠️ Жалоб: <span id="processedCount">0</span> / <span id="requiredSpan">0</span></span>
+            </div>
+            <div class="timer" id="timerDisplay">00:00</div>
+            <div class="message-box" id="messageBox"></div>
+            <button class="answer-btn restart-btn" id="exitToMenuBtn">🏠 В ГЛАВНОЕ МЕНЮ</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ЗВУКИ (синтезированные, без внешних файлов)
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new AudioContext();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    }
+    function playBeep(freq, duration, type='sine', volume=0.2) {
+        if (!audioCtx) return;
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.frequency.value = freq;
+            osc.type = type;
+            gain.gain.value = volume;
+            osc.start();
+            gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+            osc.stop(audioCtx.currentTime + duration);
+        } catch(e) {}
+    }
+    function playWin() { playBeep(880,0.3,'sine',0.3); setTimeout(()=>playBeep(1200,0.5,'sine',0.3),200); }
+    function playLose() { playBeep(300,0.8,'sawtooth',0.4); setTimeout(()=>playBeep(200,0.6,'sawtooth',0.4),400); }
+    function playFreddy() { playBeep(180,0.4,'square',0.35); setTimeout(()=>playBeep(150,0.8,'square',0.35),300); }
+    function playComplaint() { playBeep(660,0.1,'sine',0.1); }
+    function playClick() { playBeep(800,0.05,'sine',0.05); }
+    function playTransition() { playBeep(540,0.2,'sine',0.2); }
+
+    let currentNorma = 1, processed = 0, requiredForNorma = 0;
+    let isFreddyComplaint = false, waitingForTemplate = false, timerInterval = null, timeRemaining = 0;
+    let gameActive = true, gameWin = false;
+    const normalComplaints = ["Помогите, застрял в текстуре!","Почините машину, она не едет!","Помогите, упал в воду!","Сломалась анимация персонажа","У меня украли внутриигровую валюту!","Не могу зайти в игру, вылетает","Звук пропал после обновления","Квест не завершается, баг"];
+    function getFreddyChance() { return {1:5,2:12,3:30,4:55,5:75}[currentNorma] || 5; }
+    function getFailChanceOnFreddy() { return {1:20,2:35,3:50,4:70,5:85}[currentNorma] || 50; }
+    function updateRequiredForNorma() {
+        if (currentNorma === 1 || currentNorma === 2) requiredForNorma = 5;
+        else if (currentNorma === 3) requiredForNorma = 7;
+        else requiredForNorma = 10;
+        document.getElementById("requiredSpan").innerText = requiredForNorma;
+    }
+    function saveProgress() { localStorage.setItem("freddy_save_norma", currentNorma); }
+    function loadSavedNorma() { let s = localStorage.getItem("freddy_save_norma"); return (s && !isNaN(parseInt(s))) ? parseInt(s) : 1; }
+    function clearSave() { localStorage.removeItem("freddy_save_norma"); }
+
+    function startNormaTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+        let totalSeconds = requiredForNorma * 10;
+        timeRemaining = totalSeconds;
+        const timerElem = document.getElementById("timerDisplay");
+        function update() {
+            let m = Math.floor(timeRemaining / 60), s = timeRemaining % 60;
+            timerElem.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }
+        update();
+        timerInterval = setInterval(() => {
+            if (!gameActive || waitingForTemplate || gameWin) return;
+            if (timeRemaining <= 0) {
+                if (processed < requiredForNorma && !gameWin && gameActive) loseGame("Время вышло! Вы не успели обработать норму. Фредди написал жбан на форум.");
+                clearInterval(timerInterval); timerInterval = null;
+            } else { timeRemaining--; update(); }
+        }, 1000);
+    }
+
+    function generateNewComplaint() {
+        if (!gameActive || gameWin) return;
+        if (processed >= requiredForNorma) { completeNorma(); return; }
+        let isFreddy = (Math.random() * 100) < getFreddyChance();
+        if (isFreddy) {
+            isFreddyComplaint = true;
+            document.getElementById("complaintText").innerHTML = "🐻❄️ ФРЕДДИ: Твоя работа меня бесит! ОТВЕЧАЙ, НО ОСТОРОЖНЕЕ... 🐻❄️";
+            playFreddy();
+        } else {
+            isFreddyComplaint = false;
+            let randomIndex = Math.floor(Math.random() * normalComplaints.length);
+            document.getElementById("complaintText").innerHTML = "📢 ЖАЛОБА: " + normalComplaints[randomIndex];
+            playComplaint();
+        }
+        document.getElementById("templatesPanel").style.display = "none";
+        waitingForTemplate = false;
+        let mainBtn = document.getElementById("mainAnswerBtn");
+        mainBtn.style.display = "block";
+        mainBtn.innerText = "📝 ОТВЕТИТЬ НА ЖАЛОБУ";
+    }
+
+    function onMainAnswer() { if(!gameActive||gameWin||waitingForTemplate) return; playClick(); waitingForTemplate=true; document.getElementById("templatesPanel").style.display="flex"; document.getElementById("mainAnswerBtn").style.display="none"; }
+    function onSelectTemplate(replyType) {
+        if(!gameActive||gameWin||!waitingForTemplate) return;
+        waitingForTemplate=false; document.getElementById("templatesPanel").style.display="none";
+        if(isFreddyComplaint) {
+            let fail=(Math.random()*100)<getFailChanceOnFreddy();
+            if(fail){ loseGame("😱 Фредди в ярости! Ваш ответ ему не понравился. Он написал жалобу на форум. ИГРА НАЧАЛАСЬ ЗАНОВО."); return; }
+            else { document.getElementById("complaintText").innerHTML="😅 Фредди нехотя принял ответ. Жалоба закрыта."; processSuccessfulComplaint(); return; }
+        } else { processSuccessfulComplaint(); }
+    }
+    function processSuccessfulComplaint() {
+        if(!gameActive||gameWin) return;
+        processed++; document.getElementById("processedCount").innerText=processed;
+        if(processed>=requiredForNorma) completeNorma();
+        else setTimeout(()=>{ if(gameActive&&!gameWin) generateNewComplaint(); },800);
+    }
+    function completeNorma() {
+        if(currentNorma===5){
+            gameWin=true; gameActive=false; if(timerInterval)clearInterval(timerInterval);
+            document.getElementById("complaintText").innerHTML="🏆 ПОБЕДА! 🏆<br>Вы прошли 5 норм!";
+            document.getElementById("mainAnswerBtn").style.display="none"; document.getElementById("templatesPanel").style.display="none";
+            document.getElementById("messageBox").innerHTML="✨ Вы справились! Фредди бессилен ✨";
+            clearSave(); playWin(); return;
+        }
+        currentNorma++; processed=0; updateRequiredForNorma(); saveProgress();
+        document.getElementById("normaCount").innerText=currentNorma; document.getElementById("processedCount").innerText="0";
+        document.getElementById("complaintText").innerHTML=`⭐ ПЕРЕХОД НА ${currentNorma} НОРМУ ⭐<br>Теперь нужно ответить на ${requiredForNorma} жалоб!`;
+        if(timerInterval)clearInterval(timerInterval); startNormaTimer(); playTransition();
+        setTimeout(()=>{ if(gameActive&&!gameWin) generateNewComplaint(); },2000);
+    }
+    function loseGame(reason) {
+        if(!gameActive) return;
+        gameActive=false; if(timerInterval)clearInterval(timerInterval);
+        document.getElementById("complaintText").innerHTML=`💀 ЖБАН НА ФОРУМЕ 💀<br>${reason}`;
+        document.getElementById("mainAnswerBtn").style.display="none"; document.getElementById("templatesPanel").style.display="none";
+        document.getElementById("messageBox").innerHTML="❌ Игра окончена. Нажми «В главное меню» ❌";
+        clearSave(); playLose();
+    }
+    function startGameFromNorma(normaValue) {
+        if(timerInterval)clearInterval(timerInterval);
+        gameActive=true; gameWin=false; currentNorma=normaValue; processed=0; updateRequiredForNorma();
+        isFreddyComplaint=false; waitingForTemplate=false;
+        document.getElementById("normaCount").innerText=currentNorma; document.getElementById("processedCount").innerText="0";
+        document.getElementById("messageBox").innerHTML=""; document.getElementById("complaintText").innerHTML=`Начинаем ${currentNorma} норму! Нужно ${requiredForNorma} жалоб.`;
+        document.getElementById("mainAnswerBtn").style.display="block"; document.getElementById("templatesPanel").style.display="none";
+        startNormaTimer();
+        setTimeout(()=>{ if(gameActive) generateNewComplaint(); },1500);
+        saveProgress();
+    }
+    function newGame() { clearSave(); startGameFromNorma(1); showGameArea(); }
+    function continueGame() { let saved=loadSavedNorma(); if(saved>=1&&saved<=5) startGameFromNorma(saved); else newGame(); showGameArea(); }
+    function showGameArea() { document.getElementById("mainMenu").style.display="none"; document.getElementById("gameArea").style.display="block"; initAudio(); }
+    function showMainMenu() { if(timerInterval)clearInterval(timerInterval); document.getElementById("mainMenu").style.display="flex"; document.getElementById("gameArea").style.display="none"; gameActive=false; gameWin=false; }
+
+    document.getElementById("newGameBtn").addEventListener("click", newGame);
+    document.getElementById("continueBtn").addEventListener("click", continueGame);
+    document.getElementById("exitToMenuBtn").addEventListener("click", showMainMenu);
+    document.getElementById("exitBtn").addEventListener("click", ()=>{ alert("Закройте вкладку браузера, чтобы выйти"); });
+    let aboutVisible=false;
+    document.getElementById("aboutBtn").addEventListener("click",()=>{ let a=document.getElementById("aboutText"); aboutVisible=!aboutVisible; a.style.display=aboutVisible?"block":"none"; });
+    document.getElementById("mainAnswerBtn").addEventListener("click", onMainAnswer);
+    document.querySelectorAll(".template-btn").forEach(btn=>{ btn.addEventListener("click",(e)=>{ onSelectTemplate(btn.getAttribute("data-reply")); }); });
+    showMainMenu();
+</script>
+</body>
+</html>
